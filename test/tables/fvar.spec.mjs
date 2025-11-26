@@ -23,6 +23,7 @@ describe('tables/fvar.mjs', function() {
                 minValue: 100,
                 defaultValue: 400,
                 maxValue: 900,
+                isHidden: false,
                 axisNameID: 257,
                 name: {en: 'Weight', ja: 'ウエイト'}
             },
@@ -31,6 +32,7 @@ describe('tables/fvar.mjs', function() {
                 minValue: 50,
                 defaultValue: 100,
                 maxValue: 200,
+                isHidden: false,
                 axisNameID: 258,
                 name: {en: 'Width', ja: '幅'}
             }
@@ -64,6 +66,24 @@ describe('tables/fvar.mjs', function() {
 
     it('can parse a font variations table', function() {
         assert.deepEqual(table, parseFvarTable(unhex(data), 0, names));
+    });
+
+    it('can parse and write the HIDDEN_AXIS flag', function() {
+        // Same data as above, but with flags set to 0x0001 for the second axis (wdth)
+        const dataWithHidden =
+            '00 01 00 00 00 10 00 02 00 02 00 14 00 02 00 0C ' +
+            '77 67 68 74 00 64 00 00 01 90 00 00 03 84 00 00 00 00 01 01 ' +
+            '77 64 74 68 00 32 00 00 00 64 00 00 00 C8 00 00 00 01 01 02 ' +  // flags changed from 00 00 to 00 01
+            '01 03 00 00 01 2C 00 00 00 64 00 00 ' +
+            '01 04 00 00 01 2C 00 00 00 4B 00 00';
+
+        const parsed = parseFvarTable(unhex(dataWithHidden), 0, names);
+        assert.equal(parsed.axes[0].isHidden, false);
+        assert.equal(parsed.axes[1].isHidden, true);
+
+        // Round-trip: make a table from the parsed data and verify it matches
+        const roundTripped = hex(encode.TABLE(makeFvarTable(parsed, names)));
+        assert.deepEqual(dataWithHidden, roundTripped);
     });
 
     it('parses nameIDs 2 and 17 and postScriptNameID 6 correctly', function() {

@@ -70,6 +70,7 @@ export interface FvarAxis {
   maxValue: number;
   axisNameID: number;
   name: Record<string, string>;
+  isHidden?: boolean;
 }
 
 export interface FvarInstance {

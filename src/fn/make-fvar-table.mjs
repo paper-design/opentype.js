@@ -10,7 +10,7 @@ function makeFvarAxis(n, axis) {
         { name: 'minValue_' + n, type: 'FIXED', value: axis.minValue << 16 },
         { name: 'defaultValue_' + n, type: 'FIXED', value: axis.defaultValue << 16 },
         { name: 'maxValue_' + n, type: 'FIXED', value: axis.maxValue << 16 },
-        { name: 'flags_' + n, type: 'USHORT', value: 0 },
+        { name: 'flags_' + n, type: 'USHORT', value: axis.isHidden ? 0x0001 : 0 },
         { name: 'nameID_' + n, type: 'USHORT', value: axis.axisNameID }
     ];
 }

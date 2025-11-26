@@ -12,7 +12,8 @@ function parseFvarAxis(data, start, names) {
     axis.minValue = p.parseFixed();
     axis.defaultValue = p.parseFixed();
     axis.maxValue = p.parseFixed();
-    p.skip('uShort', 1);  // reserved for flags; no values defined
+    const flags = p.parseUShort();
+    axis.isHidden = (flags & 0x0001) !== 0;
     const axisNameID = p.parseUShort();
     axis.axisNameID = axisNameID;
     axis.name = getNameByID(names, axisNameID);
