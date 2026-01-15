@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { unhex } from '../testutil.mjs';
-import gpos from '../../src/tables/gpos.mjs';
+import { parseGposTable } from '../../src/fn/parse-gpos-table.mjs';
 
 // Helper that builds a minimal GPOS table to test a lookup subtable.
 function parseLookup(lookupType, subTableData) {
@@ -10,7 +10,7 @@ function parseLookup(lookupType, subTableData) {
         '0001 0004' +                                   // LookupListTable - 1 lookup table
         '000' + lookupType + '0000 0001 0008' +         // Lookup table - 1 subtable
         subTableData);                                  // sub table start offset: 0x1a
-    return gpos.parse(data).lookups[0].subtables[0];
+    return parseGposTable(data).lookups[0].subtables[0];
 }
 
 describe('tables/gpos.mjs', function() {
@@ -22,14 +22,14 @@ describe('tables/gpos.mjs', function() {
             '0000' +                        // FeatureListTable - 0 features
             '0000'                          // LookupListTable - 0 lookups
         );
-        assert.deepEqual(gpos.parse(data), { version: 1, scripts: [], features: [], lookups: [] });
+        assert.deepEqual(parseGposTable(data), { version: 1, scripts: [], features: [], lookups: [] });
     });
 
     it('can parse a GPOS header with null pointers', function() {
         const data = unhex(
             '00010000 0000 0000 0000'
         );
-        assert.deepEqual(gpos.parse(data), { version: 1, scripts: [], features: [], lookups: [] });
+        assert.deepEqual(parseGposTable(data), { version: 1, scripts: [], features: [], lookups: [] });
     });
 
     //// Lookup type 1 ////////////////////////////////////////////////////////

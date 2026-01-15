@@ -20,8 +20,6 @@ import avar from './tables/avar.mjs';
 import hvar from './tables/hvar.mjs';
 import glyf from './tables/glyf.mjs';
 import gdef from './tables/gdef.mjs';
-import gpos from './tables/gpos.mjs';
-import gsub from './tables/gsub.mjs';
 import hhea from './tables/hhea.mjs';
 import hmtx from './tables/hmtx.mjs';
 import kern from './tables/kern.mjs';
@@ -34,6 +32,8 @@ import { PaletteManager } from './palettes.mjs';
 import {
     getFontFileData,
     parseFvarTable,
+    parseGposTable,
+    parseGsubTable,
     parseHeadTable,
     parseLtagTable,
     parseNameTable,
@@ -258,13 +258,13 @@ function parseBuffer(buffer, opt = {}) {
 
     if (gposTableEntry) {
         const gposTable = uncompressTable(data, gposTableEntry);
-        font.tables.gpos = gpos.parse(gposTable.data, gposTable.offset);
+        font.tables.gpos = parseGposTable(gposTable.data, gposTable.offset);
         font.position.init();
     }
 
     if (gsubTableEntry) {
         const gsubTable = uncompressTable(data, gsubTableEntry);
-        font.tables.gsub = gsub.parse(gsubTable.data, gsubTable.offset);
+        font.tables.gsub = parseGsubTable(gsubTable.data, gsubTable.offset);
     }
 
     if (fvarTableEntry) {

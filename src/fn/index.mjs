@@ -7,6 +7,8 @@ export * from './get-name-by-id.mjs';
 export * from './get-unicode-range.mjs';
 export * from './mac-languages.mjs';
 export * from './make-fvar-table.mjs';
+export * from './make-gpos-table.mjs';
+export * from './make-gsub-table.mjs';
 export * from './make-head-table.mjs';
 export * from './make-ltag-table.mjs';
 export * from './make-name-table.mjs';

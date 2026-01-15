@@ -13,7 +13,6 @@ import hhea from './hhea.mjs';
 import hmtx from './hmtx.mjs';
 import ltag from './ltag.mjs';
 import maxp from './maxp.mjs';
-import gsub from './gsub.mjs';
 import meta from './meta.mjs';
 import colr from './colr.mjs';
 import cpal from './cpal.mjs';
@@ -27,15 +26,18 @@ import {
     encode,
     getUnicodeRange,
     makeFvarTable,
+    makeGsubTable,
     makeNameTable,
     makeOS2Table,
     makePostTable,
     parseFvarTable,
+    parseGsubTable,
     sizeOf,
 } from '../fn/index.mjs';
 import { makeHeadTable } from '../fn/make-head-table.mjs';
 
 const fvar = { parse: parseFvarTable, make: makeFvarTable };
+const gsub = { parse: parseGsubTable, make: makeGsubTable };
 
 function log2(v) {
     return Math.log(v) / Math.log(2) | 0;
