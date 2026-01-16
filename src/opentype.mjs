@@ -270,35 +270,13 @@ function parseBuffer(buffer, opt = {}) {
             // Match `ss01` to `ss20`
             if (f.tag.match(/ss(?:0[1-9]|1\d|20)/)) {
                 if (f.feature.featureParamsTable && f.feature.featureParamsTable.uiNameId !== undefined) {
-                    const uiNameObj = getNameByID(font.tables.name, f.feature.featureParamsTable.uiNameId);
-                    if (uiNameObj) {
-                        // Get the first available name from any platform/language
-                        for (const platform in uiNameObj) {
-                            const translations = uiNameObj[platform];
-                            for (const lang in translations) {
-                                f.feature.uiName = translations[lang];
-                                break;
-                            }
-                            if (f.feature.uiName) break;
-                        }
-                    }
+                    f.feature.uiName = getNameByID(font.tables.name, f.feature.featureParamsTable.uiNameId);
                 }
             }
             // Match `cv01` to `cv99`
             else if (f.tag.match(/cv(?:0[1-9]|[1-9]\d)/)) {
                 if (f.feature.featureParamsTable && f.feature.featureParamsTable.featUiLabelNameId !== undefined) {
-                    const featUiLabelNameObj = getNameByID(font.tables.name, f.feature.featureParamsTable.featUiLabelNameId);
-                    if (featUiLabelNameObj) {
-                        // Get the first available name from any platform/language
-                        for (const platform in featUiLabelNameObj) {
-                            const translations = featUiLabelNameObj[platform];
-                            for (const lang in translations) {
-                                f.feature.featUiLabelName = translations[lang];
-                                break;
-                            }
-                            if (f.feature.featUiLabelName) break;
-                        }
-                    }
+                    f.feature.featUiLabelName = getNameByID(font.tables.name, f.feature.featureParamsTable.featUiLabelNameId);
                 }
             }
         }
