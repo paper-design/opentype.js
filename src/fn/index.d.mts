@@ -151,6 +151,12 @@ export function parseNameTable(
   ltag: string[]
 ): NameTable;
 
+export function getNameByID(
+  names: NameTable,
+  nameID: number | string,
+  allowedStandardIDs?: number[]
+): Record<string, Record<string, string>> | undefined;
+
 export function parseFvarTable(
   data: DataView,
   offset: number,
