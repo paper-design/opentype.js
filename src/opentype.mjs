@@ -30,6 +30,7 @@ import gasp from './tables/gasp.mjs';
 import svg from './tables/svg.mjs';
 import { PaletteManager } from './palettes.mjs';
 import {
+    getNameByID,
     getFontFileData,
     parseFvarTable,
     parseGposTable,
@@ -265,6 +266,42 @@ function parseBuffer(buffer, opt = {}) {
     if (gsubTableEntry) {
         const gsubTable = uncompressTable(data, gsubTableEntry);
         font.tables.gsub = parseGsubTable(gsubTable.data, gsubTable.offset);
+        for (const f of font.tables.gsub.features) {
+            // Match `ss01` to `ss20`
+            if (f.tag.match(/ss(?:0[1-9]|1\d|20)/)) {
+                if (f.feature.featureParamsTable && f.feature.featureParamsTable.uiNameId !== undefined) {
+                    const uiNameObj = getNameByID(font.tables.name, f.feature.featureParamsTable.uiNameId);
+                    if (uiNameObj) {
+                        // Get the first available name from any platform/language
+                        for (const platform in uiNameObj) {
+                            const translations = uiNameObj[platform];
+                            for (const lang in translations) {
+                                f.feature.uiName = translations[lang];
+                                break;
+                            }
+                            if (f.feature.uiName) break;
+                        }
+                    }
+                }
+            }
+            // Match `cv01` to `cv99`
+            else if (f.tag.match(/cv(?:0[1-9]|[1-9]\d)/)) {
+                if (f.feature.featureParamsTable && f.feature.featureParamsTable.featUiLabelNameId !== undefined) {
+                    const featUiLabelNameObj = getNameByID(font.tables.name, f.feature.featureParamsTable.featUiLabelNameId);
+                    if (featUiLabelNameObj) {
+                        // Get the first available name from any platform/language
+                        for (const platform in featUiLabelNameObj) {
+                            const translations = featUiLabelNameObj[platform];
+                            for (const lang in translations) {
+                                f.feature.featUiLabelName = translations[lang];
+                                break;
+                            }
+                            if (f.feature.featUiLabelName) break;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     if (fvarTableEntry) {

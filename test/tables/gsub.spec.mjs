@@ -1,6 +1,7 @@
 import assert from 'assert';
 import { unhex, unhexArray } from '../testutil.mjs';
 import { parseGsubTable } from '../../src/fn/parse-gsub-table.mjs';
+import { makeGsubTable } from '../../src/fn/make-gsub-table.mjs';
 import { encode } from '../../src/fn/encode.mjs';
 
 // Helper that builds a minimal GSUB table to test a lookup subtable.
@@ -15,7 +16,7 @@ function parseLookup(lookupType, subTableData) {
 }
 
 function makeLookup(lookupType, data) {
-    return encode.TABLE(gsub.make({
+    return encode.TABLE(makeGsubTable({
         version: 1,
         scripts: [],
         features: [],
@@ -418,7 +419,7 @@ describe('tables/gsub.mjs', function() {
                 }]
             }]
         };
-        assert.deepEqual(encode.TABLE(gsub.make(gsubTable)), expectedData);
+        assert.deepEqual(encode.TABLE(makeGsubTable(gsubTable)), expectedData);
     });
 
     it('can write a lookup with coverage table format 2', function() {

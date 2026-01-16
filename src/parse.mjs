@@ -168,6 +168,22 @@ Parser.prototype.parseUInt24 = function() {
     return v;
 };
 
+// Parse a list of 24 bit unsigned integers. The length of the list can be read on the stream
+// or provided as an argument.
+Parser.prototype.parseUInt24List = function(count) {
+    if (count === undefined) { count = this.parseUShort(); }
+    const offsets = new Array(count);
+    const dataView = this.data;
+    let offset = this.offset + this.relativeOffset;
+    for (let i = 0; i < count; i++) {
+        offsets[i] = getUInt24(dataView, offset);
+        offset += 3;
+    }
+
+    this.relativeOffset += count * 3;
+    return offsets;
+};
+
 Parser.prototype.parseULong = function() {
     const v = getULong(this.data, this.offset + this.relativeOffset);
     this.relativeOffset += 4;
@@ -448,11 +464,16 @@ Parser.prototype.parseValueRecordList = function() {
     return values;
 };
 
-Parser.prototype.parsePointer = function(description) {
+Parser.prototype.parsePointer = function(description, storeOffset = false) {
     const structOffset = this.parseOffset16();
     if (structOffset > 0) {
         // NULL offset => return undefined
-        return new Parser(this.data, this.offset + structOffset).parseStruct(description);
+        const offset = this.offset + structOffset;
+        const struct = new Parser(this.data, offset).parseStruct(description);
+        if (storeOffset) {
+            struct.tableOffset = offset;
+        }
+        return struct;
     }
     return undefined;
 };
@@ -589,9 +610,9 @@ Parser.recordList32 = function(count, recordDescription) {
     };
 };
 
-Parser.pointer = function(description) {
+Parser.pointer = function(description, storeOffset = false) {
     return function() {
-        return this.parsePointer(description);
+        return this.parsePointer(description, storeOffset);
     };
 };
 
@@ -606,6 +627,7 @@ Parser.byte = Parser.prototype.parseByte;
 Parser.uShort = Parser.offset16 = Parser.prototype.parseUShort;
 Parser.uShortList = Parser.prototype.parseUShortList;
 Parser.uInt24 = Parser.prototype.parseUInt24;
+Parser.uInt24List = Parser.prototype.parseUInt24List;
 Parser.uLong = Parser.offset32 = Parser.prototype.parseULong;
 Parser.uLongList = Parser.prototype.parseULongList;
 Parser.fixed = Parser.prototype.parseFixed;
@@ -642,8 +664,29 @@ Parser.prototype.parseFeatureList = function() {
         feature: Parser.pointer({
             featureParams: Parser.offset16,
             lookupListIndexes: Parser.uShortList
-        })
+        }, true)
     })) || [];
+};
+
+// https://learn.microsoft.com/en-us/typography/opentype/spec/features_pt#tag-ss01---ss20
+Parser.prototype.parseStylisticSetFeatureParams = function() {
+    return this.parsePointer({
+        version: Parser.uShort,
+        uiNameId: Parser.uShort
+    }) || [];
+};
+
+// https://docs.microsoft.com/en-us/typography/opentype/spec/features_ae#tag-cv01--cv99
+Parser.prototype.parseCharacterVariantFeatureParams = function() {
+    return this.parsePointer({
+        format: Parser.uShort,
+        featUiLabelNameId: Parser.uShort,
+        featUiTooltipTextNameId: Parser.uShort,
+        sampleTextNameId: Parser.uShort,
+        numNamedParameters: Parser.uShort,
+        firstParamUiLabelNameId: Parser.uShort,
+        characters: Parser.uInt24List
+    }) || [];
 };
 
 Parser.prototype.parseLookupList = function(lookupTableParsers) {

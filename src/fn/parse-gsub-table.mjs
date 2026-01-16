@@ -191,15 +191,16 @@ export function parseGsubTable(data, start) {
     const p = new Parser(data, start);
     const tableVersion = p.parseVersion(1);
     check.argument(tableVersion === 1 || tableVersion === 1.1, 'Unsupported GSUB table version.');
+    let table;
     if (tableVersion === 1) {
-        return {
+        table = {
             version: tableVersion,
             scripts: p.parseScriptList(),
             features: p.parseFeatureList(),
             lookups: p.parseLookupList(subtableParsers)
         };
     } else {
-        return {
+        table = {
             version: tableVersion,
             scripts: p.parseScriptList(),
             features: p.parseFeatureList(),
@@ -207,4 +208,20 @@ export function parseGsubTable(data, start) {
             variations: p.parseFeatureVariationsList()
         };
     }
+
+    for (const f of (table.features)) {
+        // Match `ss01` to `ss20`
+        if (f.tag.match(/ss(?:0[1-9]|1\d|20)/)) {
+            const featureP = new Parser(data, f.feature.tableOffset);
+            f.feature.featureParamsTable = featureP.parseStylisticSetFeatureParams();
+        }
+        // Match `cv01` to `cv99`
+        else if (f.tag.match(/cv(?:0[1-9]|[1-9]\d)/)) {
+            const featureP = new Parser(data, f.feature.tableOffset);
+            f.feature.featureParamsTable = featureP.parseCharacterVariantFeatureParams();
+        }
+        delete f.feature.tableOffset;
+    }
+
+    return table;
 }
