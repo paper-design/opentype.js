@@ -139,6 +139,7 @@ export function uncompressTable(
 ): TableData;
 
 export function getFontFileData(buffer: ArrayBuffer): FontFileData;
+export function parseCmapTable(data: DataView, offset: number): CmapTable;
 export function parseHeadTable(data: DataView, offset: number): HeadTable;
 export function parseLtagTable(data: DataView, offset: number): string[];
 export function parseOS2Table(data: DataView, offset: number): OS2Table;
