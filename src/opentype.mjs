@@ -11,7 +11,6 @@ import BoundingBox from './bbox.mjs';
 import Path from './path.mjs';
 import cpal from './tables/cpal.mjs';
 import colr from './tables/colr.mjs';
-import cmap from './tables/cmap.mjs';
 import cff from './tables/cff.mjs';
 import stat from './tables/stat.mjs';
 import gvar from './tables/gvar.mjs';
@@ -32,6 +31,7 @@ import { PaletteManager } from './palettes.mjs';
 import {
     getNameByID,
     getFontFileData,
+    parseCmapTable,
     parseFvarTable,
     parseGposTable,
     parseGsubTable,
@@ -97,7 +97,7 @@ function parseBuffer(buffer, opt = {}) {
                 break;
             case 'cmap':
                 table = uncompressTable(data, tableEntry);
-                font.tables.cmap = cmap.parse(table.data, table.offset);
+                font.tables.cmap = parseCmapTable(table.data, table.offset);
                 font.encoding = new CmapEncoding(font.tables.cmap);
                 break;
             case 'cvt ':

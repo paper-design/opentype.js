@@ -7,7 +7,6 @@
 import check from '../check.mjs';
 import table from '../table.mjs';
 
-import cmap from './cmap.mjs';
 import cff from './cff.mjs';
 import hhea from './hhea.mjs';
 import hmtx from './hmtx.mjs';
@@ -25,6 +24,7 @@ import svg from './svg.mjs';
 import {
     encode,
     getUnicodeRange,
+    makeCmapTable,
     makeFvarTable,
     makeGsubTable,
     makeNameTable,
@@ -278,7 +278,7 @@ function fontToSfntTable(font) {
     }, font.tables.os2));
 
     const hmtxTable = hmtx.make(font.glyphs);
-    const cmapTable = cmap.make(font.glyphs);
+    const cmapTable = makeCmapTable(font.glyphs);
 
     const englishFamilyName = font.getEnglishName('fontFamily');
     const englishStyleName = font.getEnglishName('fontSubfamily');
