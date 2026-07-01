@@ -5,11 +5,13 @@ import parse from '../parse.mjs';
  * Parses OpenType table entries.
  * @param  {DataView}
  * @param  {Number}
+ * @param  {Number} [fontOffset=0] Offset to the sfnt header. Non-zero for fonts inside a collection (ttcf).
  * @return {Object[]}
  */
-export function parseOpenTypeTableEntries(data, numTables) {
+export function parseOpenTypeTableEntries(data, numTables, fontOffset = 0) {
     const tableEntries = [];
-    let p = 12;
+    // The table directory starts 12 bytes after the sfnt header (sfntVersion, numTables, searchRange, entrySelector, rangeShift).
+    let p = fontOffset + 12;
     for (let i = 0; i < numTables; i += 1) {
         const tag = parse.getTag(data, p);
         const checksum = parse.getULong(data, p + 4);

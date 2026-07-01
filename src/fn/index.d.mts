@@ -138,7 +138,11 @@ export function uncompressTable(
   tableEntry: TableEntry
 ): TableData;
 
-export function getFontFileData(buffer: ArrayBuffer): FontFileData;
+export function getFontFileData(
+  buffer: ArrayBuffer,
+  /** PostScript name of the font to select from a collection (ttcf). Required for collections. */
+  postScriptName?: string
+): FontFileData;
 export function parseCmapTable(data: DataView, offset: number): CmapTable;
 export function parseHeadTable(data: DataView, offset: number): HeadTable;
 export function parseLtagTable(data: DataView, offset: number): string[];
