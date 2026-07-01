@@ -7,13 +7,11 @@
 import check from '../check.mjs';
 import table from '../table.mjs';
 
-import cmap from './cmap.mjs';
 import cff from './cff.mjs';
 import hhea from './hhea.mjs';
 import hmtx from './hmtx.mjs';
 import ltag from './ltag.mjs';
 import maxp from './maxp.mjs';
-import gsub from './gsub.mjs';
 import meta from './meta.mjs';
 import colr from './colr.mjs';
 import cpal from './cpal.mjs';
@@ -26,16 +24,20 @@ import svg from './svg.mjs';
 import {
     encode,
     getUnicodeRange,
+    makeCmapTable,
     makeFvarTable,
+    makeGsubTable,
     makeNameTable,
     makeOS2Table,
     makePostTable,
     parseFvarTable,
+    parseGsubTable,
     sizeOf,
 } from '../fn/index.mjs';
 import { makeHeadTable } from '../fn/make-head-table.mjs';
 
 const fvar = { parse: parseFvarTable, make: makeFvarTable };
+const gsub = { parse: parseGsubTable, make: makeGsubTable };
 
 function log2(v) {
     return Math.log(v) / Math.log(2) | 0;
@@ -276,7 +278,7 @@ function fontToSfntTable(font) {
     }, font.tables.os2));
 
     const hmtxTable = hmtx.make(font.glyphs);
-    const cmapTable = cmap.make(font.glyphs);
+    const cmapTable = makeCmapTable(font.glyphs);
 
     const englishFamilyName = font.getEnglishName('fontFamily');
     const englishStyleName = font.getEnglishName('fontSubfamily');

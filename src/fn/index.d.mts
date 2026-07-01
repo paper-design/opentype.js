@@ -117,16 +117,34 @@ export interface HeadTable {
   glyphDataFormat: number
 }
 
+export interface GsubTable {
+  version: number;
+  scripts: any[];
+  features: any[];
+  lookups: any[];
+  variations?: any[];
+}
+
+export interface GposTable {
+  version: number;
+  scripts: any[];
+  features: any[];
+  lookups: any[];
+  variations?: any[];
+}
+
 export function uncompressTable(
   data: DataView,
   tableEntry: TableEntry
 ): TableData;
 
 export function getFontFileData(buffer: ArrayBuffer): FontFileData;
+export function parseCmapTable(data: DataView, offset: number): CmapTable;
 export function parseHeadTable(data: DataView, offset: number): HeadTable;
 export function parseLtagTable(data: DataView, offset: number): string[];
 export function parseOS2Table(data: DataView, offset: number): OS2Table;
 export function parsePostTable(data: DataView, offset: number): PostTable;
+
 
 export function parseNameTable(
   data: DataView,
@@ -134,8 +152,17 @@ export function parseNameTable(
   ltag: string[]
 ): NameTable;
 
+export function getNameByID(
+  names: NameTable,
+  nameID: number | string,
+  allowedStandardIDs?: number[]
+): Record<string, Record<string, string>> | undefined;
+
 export function parseFvarTable(
   data: DataView,
   offset: number,
   names: NameTable
 ): FvarTable;
+
+export function parseGposTable(data: DataView, offset?: number): GposTable;
+export function parseGsubTable(data: DataView, offset?: number): GsubTable;

@@ -1,6 +1,7 @@
 import assert from 'assert';
 import { unhex, unhexArray } from '../testutil.mjs';
-import gsub from '../../src/tables/gsub.mjs';
+import { parseGsubTable } from '../../src/fn/parse-gsub-table.mjs';
+import { makeGsubTable } from '../../src/fn/make-gsub-table.mjs';
 import { encode } from '../../src/fn/encode.mjs';
 
 // Helper that builds a minimal GSUB table to test a lookup subtable.
@@ -11,11 +12,11 @@ function parseLookup(lookupType, subTableData) {
         '0001 0004' +                                   // LookupListTable - 1 lookup table
         '000' + lookupType + '0000 0001 0008' +         // Lookup table - 1 subtable
         subTableData);                                  // sub table start offset: 0x1a
-    return gsub.parse(data).lookups[0].subtables[0];
+    return parseGsubTable(data).lookups[0].subtables[0];
 }
 
 function makeLookup(lookupType, data) {
-    return encode.TABLE(gsub.make({
+    return encode.TABLE(makeGsubTable({
         version: 1,
         scripts: [],
         features: [],
@@ -36,14 +37,14 @@ describe('tables/gsub.mjs', function() {
             '0000' +                        // FeatureListTable - 0 features
             '0000'                          // LookupListTable - 0 lookups
         );
-        assert.deepEqual(gsub.parse(data), { version: 1, scripts: [], features: [], lookups: [] });
+        assert.deepEqual(parseGsubTable(data), { version: 1, scripts: [], features: [], lookups: [] });
     });
 
     it('can parse a GSUB header with null pointers', function() {
         const data = unhex(
             '00010000 0000 0000 0000'
         );
-        assert.deepEqual(gsub.parse(data), { version: 1, scripts: [], features: [], lookups: [] });
+        assert.deepEqual(parseGsubTable(data), { version: 1, scripts: [], features: [], lookups: [] });
     });
 
     //// Lookup type 1 ////////////////////////////////////////////////////////
@@ -418,7 +419,7 @@ describe('tables/gsub.mjs', function() {
                 }]
             }]
         };
-        assert.deepEqual(encode.TABLE(gsub.make(gsubTable)), expectedData);
+        assert.deepEqual(encode.TABLE(makeGsubTable(gsubTable)), expectedData);
     });
 
     it('can write a lookup with coverage table format 2', function() {

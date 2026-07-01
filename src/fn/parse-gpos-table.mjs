@@ -3,7 +3,6 @@
 
 import check from '../check.mjs';
 import { Parser } from '../parse.mjs';
-import table from '../table.mjs';
 
 const subtableParsers = new Array(10);         // subtableParsers[0] is unused
 
@@ -85,7 +84,7 @@ subtableParsers[8] = function parseLookup8() { return { error: 'GPOS Lookup 8 no
 subtableParsers[9] = function parseLookup9() { return { error: 'GPOS Lookup 9 not supported' }; };
 
 // https://docs.microsoft.com/en-us/typography/opentype/spec/gpos
-function parseGposTable(data, start) {
+export function parseGposTable(data, start) {
     start = start || 0;
     const p = new Parser(data, start);
     const tableVersion = p.parseVersion(1);
@@ -107,20 +106,4 @@ function parseGposTable(data, start) {
             variations: p.parseFeatureVariationsList()
         };
     }
-
 }
-
-// GPOS Writing //////////////////////////////////////////////
-// NOT SUPPORTED
-const subtableMakers = new Array(10);
-
-function makeGposTable(gpos) {
-    return new table.Table('GPOS', [
-        {name: 'version', type: 'ULONG', value: 0x10000},
-        {name: 'scripts', type: 'TABLE', value: new table.ScriptList(gpos.scripts)},
-        {name: 'features', type: 'TABLE', value: new table.FeatureList(gpos.features)},
-        {name: 'lookups', type: 'TABLE', value: new table.LookupList(gpos.lookups, subtableMakers)}
-    ]);
-}
-
-export default { parse: parseGposTable, make: makeGposTable };

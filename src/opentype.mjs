@@ -11,7 +11,6 @@ import BoundingBox from './bbox.mjs';
 import Path from './path.mjs';
 import cpal from './tables/cpal.mjs';
 import colr from './tables/colr.mjs';
-import cmap from './tables/cmap.mjs';
 import cff from './tables/cff.mjs';
 import stat from './tables/stat.mjs';
 import gvar from './tables/gvar.mjs';
@@ -20,8 +19,6 @@ import avar from './tables/avar.mjs';
 import hvar from './tables/hvar.mjs';
 import glyf from './tables/glyf.mjs';
 import gdef from './tables/gdef.mjs';
-import gpos from './tables/gpos.mjs';
-import gsub from './tables/gsub.mjs';
 import hhea from './tables/hhea.mjs';
 import hmtx from './tables/hmtx.mjs';
 import kern from './tables/kern.mjs';
@@ -32,8 +29,12 @@ import gasp from './tables/gasp.mjs';
 import svg from './tables/svg.mjs';
 import { PaletteManager } from './palettes.mjs';
 import {
+    getNameByID,
     getFontFileData,
+    parseCmapTable,
     parseFvarTable,
+    parseGposTable,
+    parseGsubTable,
     parseHeadTable,
     parseLtagTable,
     parseNameTable,
@@ -96,7 +97,7 @@ function parseBuffer(buffer, opt = {}) {
                 break;
             case 'cmap':
                 table = uncompressTable(data, tableEntry);
-                font.tables.cmap = cmap.parse(table.data, table.offset);
+                font.tables.cmap = parseCmapTable(table.data, table.offset);
                 font.encoding = new CmapEncoding(font.tables.cmap);
                 break;
             case 'cvt ':
@@ -258,13 +259,27 @@ function parseBuffer(buffer, opt = {}) {
 
     if (gposTableEntry) {
         const gposTable = uncompressTable(data, gposTableEntry);
-        font.tables.gpos = gpos.parse(gposTable.data, gposTable.offset);
+        font.tables.gpos = parseGposTable(gposTable.data, gposTable.offset);
         font.position.init();
     }
 
     if (gsubTableEntry) {
         const gsubTable = uncompressTable(data, gsubTableEntry);
-        font.tables.gsub = gsub.parse(gsubTable.data, gsubTable.offset);
+        font.tables.gsub = parseGsubTable(gsubTable.data, gsubTable.offset);
+        for (const f of font.tables.gsub.features) {
+            // Match `ss01` to `ss20`
+            if (f.tag.match(/ss(?:0[1-9]|1\d|20)/)) {
+                if (f.feature.featureParamsTable && f.feature.featureParamsTable.uiNameId !== undefined) {
+                    f.feature.uiName = getNameByID(font.tables.name, f.feature.featureParamsTable.uiNameId);
+                }
+            }
+            // Match `cv01` to `cv99`
+            else if (f.tag.match(/cv(?:0[1-9]|[1-9]\d)/)) {
+                if (f.feature.featureParamsTable && f.feature.featureParamsTable.featUiLabelNameId !== undefined) {
+                    f.feature.featUiLabelName = getNameByID(font.tables.name, f.feature.featureParamsTable.featUiLabelNameId);
+                }
+            }
+        }
     }
 
     if (fvarTableEntry) {

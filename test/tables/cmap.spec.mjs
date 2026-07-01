@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { unhex } from '../testutil.mjs';
 import { Parser } from '../../src/parse.mjs';
-import { parseCmapTableFormat14, parseCmapTableFormat0 } from '../../src/tables/cmap.mjs';
+import { parseCmapTableFormat14, parseCmapTableFormat0 } from '../../src/fn/parse-cmap-table.mjs';
 import { parse } from '../../src/opentype.mjs';
 import { readFileSync } from 'fs';
 const loadSync = (url, opt) => parse(readFileSync(url), opt);
